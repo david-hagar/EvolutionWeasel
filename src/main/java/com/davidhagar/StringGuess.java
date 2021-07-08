@@ -5,10 +5,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class StringGuess implements Comparable<StringGuess> {
     public String guess;
     public float score;
+    private int firstDecreasingIndex;
 
-    public StringGuess(String guess, float score) {
+    public StringGuess(String guess, float score, int firstDecreasingIndex) {
         this.guess = guess;
         this.score = score;
+        this.firstDecreasingIndex = firstDecreasingIndex;
     }
 
     public String mutate(StringGoalGA stringGoalGA) {
@@ -19,10 +21,10 @@ public class StringGuess implements Comparable<StringGuess> {
             int numberCharToMutate = (int) Math.max(stringGoalGA.getMutationRate() * guess.length(), 1);
             // System.out.println(numberCharToMutate);
             for (int i = 0; i < numberCharToMutate; i++) {
-                int index = ThreadLocalRandom.current().nextInt(0, guess.length());
+                int index = ThreadLocalRandom.current().nextInt(0, Math.min(guess.length(), firstDecreasingIndex));
 
-                //char c = (char) ThreadLocalRandom.current().nextInt(stringGoalGA.getMinChar(), stringGoalGA.getMaxChar());
-                char c = (char) (ThreadLocalRandom.current().nextBoolean() ? str.charAt(index)+1:str.charAt(index)-1);
+                char c = (char) ThreadLocalRandom.current().nextInt(stringGoalGA.getMinChar(), stringGoalGA.getMaxChar());
+                //char c = (char) (ThreadLocalRandom.current().nextBoolean() ? str.charAt(index)+1:str.charAt(index)-1);
 
                 str.setCharAt(index, c);
             }
@@ -46,6 +48,6 @@ public class StringGuess implements Comparable<StringGuess> {
 
     @Override
     public String toString() {
-        return score + ", \"" + guess +'\"';
+        return score + ", " + firstDecreasingIndex + ", \"" + guess +'\"';
     }
 }

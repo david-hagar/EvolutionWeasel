@@ -6,7 +6,7 @@ import com.davidhagar.population.Population;
 public class StringGoalGA {
 
     private final String name;
-    private int populationSize = 1;
+    private int populationSize = 5;
     private float mutationRate = 0.01f;
     private float lengthMutationRate = 0.05f;
     private String goal = "Me thinks it looks like a weasel!";
@@ -15,7 +15,6 @@ public class StringGoalGA {
     private char minChar = ' ';
     private char maxChar = '~';
     private int lengthPenaltyPerChar = (int) (maxChar-minChar);
-    private Population population;
 
     public StringGoalGA(String name) {
         this.name = name;
@@ -110,22 +109,41 @@ public class StringGoalGA {
         return diffTotal; // low score is a better match
     }
 
+
+    public int firstDecreasingIndex(String guess) {
+        int minLength = Math.min(goal.length(), guess.length());
+        int lastDiff = 0;
+
+        for (int i = 0; i < minLength; i++) {
+            int diff = Math.abs(goal.charAt(i) - guess.charAt(i));
+            if( diff < lastDiff )
+                return i;
+            lastDiff = diff;
+        }
+
+        return minLength;
+    }
+
+
     public void run() {
-        population = new ListPopulation(populationSize);
+        Population population = new ListPopulation(populationSize);
 
         float initialScore = score(initialGuess);
+        int fdi = firstDecreasingIndex(initialGuess);
         for (int i = 0; i < populationSize; i++) {
-            StringGuess g = new StringGuess(initialGuess, initialScore);
+            StringGuess g = new StringGuess(initialGuess, initialScore, fdi);
             population.add(g);
         }
-        StringGuess best = new StringGuess("", Float.MAX_VALUE);
+        StringGuess best = new StringGuess("", Float.MAX_VALUE, Integer.MAX_VALUE);
+
+        long lastLog = System.currentTimeMillis();
 
         for (int i = 0; i < maxGenerations; i++) {
             StringGuess p = population.getNextMutationParent();
             String childStr = p.mutate(this);
             float score = score(childStr);
 
-            StringGuess guess = new StringGuess(childStr, score);
+            StringGuess guess = new StringGuess(childStr, score(childStr), firstDecreasingIndex(childStr));
             population.add(guess);
 
             if( best.compareTo(guess) > 0)
@@ -135,8 +153,11 @@ public class StringGoalGA {
                 System.out.println("Success in " + i + " generations: " + best);
                 break;}
 
-            System.out.println(i + ") best = " + best);
-            //population.logPopulation();
+            if( System.currentTimeMillis() - lastLog > 5) {
+                System.out.println(i + ") best = " + best);
+                lastLog = System.currentTimeMillis();
+                //population.logPopulation();
+            }
         }
         if(best.score == 0)
             System.out.println("Finished with success");

@@ -7,9 +7,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class StringGuessTest {
 
     public void test(){
+        StringGoalGA stringGoalGA = new StringGoalGA("test").setMutationRate(0.05f);
         for (int i = 0; i < 30; i++) {
-            StringGuess sg = new StringGuess("1234567890", 123.0f);
-            System.out.println(sg.mutate(new StringGoalGA("test").setMutationRate(0.2f)));
+            StringGuess sg = new StringGuess("Me thinks it looks like a weasel!", 123.0f, 99);
+            String child = sg.mutate(stringGoalGA);
+            System.out.println(child);
+            System.out.println("firstDecreasingIndex = " + stringGoalGA.firstDecreasingIndex(child));
         }
 
 
@@ -32,6 +35,8 @@ class StringGuessTest {
         // Printing the top element again
         System.out.println(pQueue.peek());
         System.out.println(pQueue.size());
+
+
     }
 
     public static void main(String[] args) {
