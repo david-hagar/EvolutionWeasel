@@ -1,22 +1,21 @@
 package com.davidhagar;
 
+import java.io.File;
 import java.util.PriorityQueue;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class StringGuessTest {
 
     public void test(){
-        StringGoalGA stringGoalGA = new StringGoalGA("test").setMutationRate(0.05f);
+        StringGoalGA stringGoalGA = new StringGoalGA(new File("test")).setMutationRate(0.05f);
         for (int i = 0; i < 30; i++) {
-            StringGuess sg = new StringGuess("Me thinks it looks like a weasel!", 123.0f, 99);
+            StringGuess sg = new StringGuess("Me thinks it looks like a weasel!", 123.0f);
             String child = sg.mutate(stringGoalGA);
             System.out.println(child);
             System.out.println("firstDecreasingIndex = " + stringGoalGA.firstDecreasingIndex(child));
         }
 
 
-        PriorityQueue<Integer> pQueue = new PriorityQueue<Integer>();
+        PriorityQueue<Integer> pQueue = new PriorityQueue<>();
 
         // Adding items to the pQueue using add()
         pQueue.add(10);

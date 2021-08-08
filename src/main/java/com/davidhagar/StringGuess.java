@@ -7,10 +7,9 @@ public class StringGuess implements Comparable<StringGuess> {
     public float score;
     private int firstDecreasingIndex;
 
-    public StringGuess(String guess, float score, int firstDecreasingIndex) {
+    public StringGuess(String guess, float score) {
         this.guess = guess;
         this.score = score;
-        this.firstDecreasingIndex = firstDecreasingIndex;
     }
 
     public String mutate(StringGoalGA stringGoalGA) {
@@ -18,13 +17,15 @@ public class StringGuess implements Comparable<StringGuess> {
         StringBuilder str = new StringBuilder(guess);
 
         if( guess.length() > 0) {
-            int numberCharToMutate = (int) Math.max(stringGoalGA.getMutationRate() * guess.length(), 1);
+            int numberCharToMutate = 1; //(int) Math.max(stringGoalGA.getMutationRate() * guess.length(), 1);
             // System.out.println(numberCharToMutate);
             for (int i = 0; i < numberCharToMutate; i++) {
-                int index = ThreadLocalRandom.current().nextInt(0, Math.min(guess.length(), firstDecreasingIndex));
+                int index = ThreadLocalRandom.current().nextInt(0, guess.length());
 
-                char c = (char) ThreadLocalRandom.current().nextInt(stringGoalGA.getMinChar(), stringGoalGA.getMaxChar());
+                //char c = (char) ThreadLocalRandom.current().nextInt(stringGoalGA.getMinChar(), stringGoalGA.getMaxChar());
                 //char c = (char) (ThreadLocalRandom.current().nextBoolean() ? str.charAt(index)+1:str.charAt(index)-1);
+                int offset = ThreadLocalRandom.current().nextInt(1, stringGoalGA.getCharacterAdjustMaxOffset()+1);
+                char c = (char) (ThreadLocalRandom.current().nextBoolean() ? str.charAt(index)+offset:str.charAt(index)-offset);
 
                 str.setCharAt(index, c);
             }

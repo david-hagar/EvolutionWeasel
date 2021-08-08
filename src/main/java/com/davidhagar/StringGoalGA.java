@@ -3,21 +3,27 @@ package com.davidhagar;
 import com.davidhagar.population.ListPopulation;
 import com.davidhagar.population.Population;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
 public class StringGoalGA {
 
-    private final String name;
+    public static final int LOG_RATE_MS = 5;
     private int populationSize = 5;
     private float mutationRate = 0.01f;
     private float lengthMutationRate = 0.05f;
+    private int characterAdjustMaxOffset = 10;
     private String goal = "Me thinks it looks like a weasel!";
     private String initialGuess = "Something to start";
-    private int maxGenerations = 50000;
+    private int maxGenerations = 5000000;
     private char minChar = ' ';
     private char maxChar = '~';
-    private int lengthPenaltyPerChar = (int) (maxChar-minChar);
+    private int lengthPenaltyPerChar = maxChar-minChar;
+    private int endIteration = -1;
+    private File logFile;
 
-    public StringGoalGA(String name) {
-        this.name = name;
+    public StringGoalGA(File logFile) {
+        this.logFile = logFile;
     }
 
 
@@ -80,10 +86,6 @@ public class StringGoalGA {
         return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public int getLengthPenaltyPerChar() {
         return lengthPenaltyPerChar;
     }
@@ -125,44 +127,70 @@ public class StringGoalGA {
     }
 
 
-    public void run() {
+    public void run() throws IOException {
         Population population = new ListPopulation(populationSize);
 
         float initialScore = score(initialGuess);
-        int fdi = firstDecreasingIndex(initialGuess);
         for (int i = 0; i < populationSize; i++) {
-            StringGuess g = new StringGuess(initialGuess, initialScore, fdi);
+            StringGuess g = new StringGuess(initialGuess, initialScore);
             population.add(g);
         }
-        StringGuess best = new StringGuess("", Float.MAX_VALUE, Integer.MAX_VALUE);
+        StringGuess best = new StringGuess("", Float.MAX_VALUE);
 
         long lastLog = System.currentTimeMillis();
 
-        for (int i = 0; i < maxGenerations; i++) {
-            StringGuess p = population.getNextMutationParent();
-            String childStr = p.mutate(this);
-            float score = score(childStr);
+        try (FileOutputStream fos = new FileOutputStream(logFile);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+             BufferedWriter writer = new BufferedWriter(osw)
+        ) {
+            writer.write("Iteration, Best Score");
+            writer.newLine();
 
-            StringGuess guess = new StringGuess(childStr, score(childStr), firstDecreasingIndex(childStr));
-            population.add(guess);
+            for (int i = 0; i < maxGenerations; i++) {
+                StringGuess p = population.getNextMutationParent();
+                String childStr = p.mutate(this);
+                float score = score(childStr);
 
-            if( best.compareTo(guess) > 0)
-                best = guess;
+                StringGuess guess = new StringGuess(childStr, score(childStr));
+                population.add(guess);
 
-            if(score == 0) {
-                System.out.println("Success in " + i + " generations: " + best);
-                break;}
+                if (best.compareTo(guess) > 0)
+                    best = guess;
 
-            if( System.currentTimeMillis() - lastLog > 5) {
-                System.out.println(i + ") best = " + best);
-                lastLog = System.currentTimeMillis();
-                //population.logPopulation();
+                if (score == 0) {
+                    System.out.println("Success in " + i + " generations: " + best);
+                    endIteration = i;
+                    break;
+                }
+
+                if (System.currentTimeMillis() - lastLog > LOG_RATE_MS) {
+                    System.out.println(i + ") best = " + best);
+                    lastLog = System.currentTimeMillis();
+                    //population.logPopulation();
+                }
+                writer.write(i + ", " + best.score);
+                writer.newLine();
             }
         }
         if(best.score == 0)
             System.out.println("Finished with success");
         else
+        {
             System.out.println("Finished without finding. best = " + best);
+            endIteration = maxGenerations;
+        }
+    }
+
+    public int getEndIteration() {
+        return endIteration;
+    }
+
+    public int getCharacterAdjustMaxOffset() {
+        return characterAdjustMaxOffset;
+    }
+
+    public void setCharacterAdjustMaxOffset(int characterAdjustMaxOffset) {
+        this.characterAdjustMaxOffset = characterAdjustMaxOffset;
     }
 
 }
