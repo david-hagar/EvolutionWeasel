@@ -1,12 +1,14 @@
 package com.davidhagar;
 
+import com.davidhagar.population.ListPopulation;
+
 import java.io.File;
 import java.util.PriorityQueue;
 
 class StringGuessTest {
 
     public void test(){
-        StringGoalGA stringGoalGA = new StringGoalGA(new File("test")).setMutationRate(0.05f);
+        StringGoalGA stringGoalGA = new StringGoalGA(new File("test"), new ListPopulation(5));
         for (int i = 0; i < 30; i++) {
             StringGuess sg = new StringGuess("Me thinks it looks like a weasel!", 123.0f);
             String child = sg.mutate(stringGoalGA);

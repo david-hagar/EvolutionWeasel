@@ -1,6 +1,5 @@
 package com.davidhagar;
 
-import com.davidhagar.population.ListPopulation;
 import com.davidhagar.population.Population;
 
 import java.io.*;
@@ -9,8 +8,6 @@ import java.nio.charset.StandardCharsets;
 public class StringGoalGA {
 
     public static final int LOG_RATE_MS = 5;
-    private int populationSize = 5;
-    private float mutationRate = 0.01f;
     private float lengthMutationRate = 0.05f;
     private int characterAdjustMaxOffset = 10;
     private String goal = "Me thinks it looks like a weasel!";
@@ -21,24 +18,11 @@ public class StringGoalGA {
     private int lengthPenaltyPerChar = maxChar-minChar;
     private int endIteration = -1;
     private File logFile;
+    private Population population;
 
-    public StringGoalGA(File logFile) {
+    public StringGoalGA(File logFile, Population population) {
         this.logFile = logFile;
-    }
-
-
-    public StringGoalGA setPopulationSize(int populationSize) {
-        this.populationSize = populationSize;
-        return this;
-    }
-
-    public float getMutationRate() {
-        return mutationRate;
-    }
-
-    public StringGoalGA setMutationRate(float mutationRate) {
-        this.mutationRate = mutationRate;
-        return this;
+        this.population = population;
     }
 
     public float getLengthMutationRate() {
@@ -128,13 +112,15 @@ public class StringGoalGA {
 
 
     public void run() throws IOException {
-        Population population = new ListPopulation(populationSize);
 
         float initialScore = score(initialGuess);
-        for (int i = 0; i < populationSize; i++) {
-            StringGuess g = new StringGuess(initialGuess, initialScore);
-            population.add(g);
+        StringGuess[] g = new StringGuess[population.getSize()];
+
+        for (int i = 0; i < population.getSize(); i++) {
+            g[i] = new StringGuess(initialGuess, initialScore);
         }
+        population.intializePopulation(g);
+
         StringGuess best = new StringGuess("", Float.MAX_VALUE);
 
         long lastLog = System.currentTimeMillis();
@@ -152,7 +138,7 @@ public class StringGoalGA {
                 float score = score(childStr);
 
                 StringGuess guess = new StringGuess(childStr, score(childStr));
-                population.add(guess);
+                population.addAndRemoveLeast(guess);
 
                 if (best.compareTo(guess) > 0)
                     best = guess;

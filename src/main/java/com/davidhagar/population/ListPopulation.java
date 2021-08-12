@@ -2,9 +2,8 @@ package com.davidhagar.population;
 
 import com.davidhagar.StringGuess;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ListPopulation implements Population {
@@ -15,13 +14,13 @@ public class ListPopulation implements Population {
     public ListPopulation(int size) {
         this.size = size;
 
-        Comparator<? super StringGuess> comp = new Comparator<StringGuess>() {
+        Comparator<? super StringGuess> comp = new Comparator<>() {
             @Override
             public int compare(StringGuess o1, StringGuess o2) {
                 return o2.compareTo(o1); // reverse order
             }
         };
-        population = new HackedPriorityQueue<StringGuess>(size, comp);
+        population = new HackedPriorityQueue<>(size, comp);
     }
 
     @Override
@@ -31,23 +30,23 @@ public class ListPopulation implements Population {
     }
 
     @Override
-    public StringGuess[] getNextCrossoverParents() {
-        return new StringGuess[0];
-    }
+    public void intializePopulation(StringGuess[] pop) {
 
-    @Override
-    public void add(StringGuess guess) {
-
-        population.add(guess);
-        if( population.size() > size)
+        population.addAll(List.of(pop));
+        if (population.size() > size)
             population.poll(); // removes highest/worst score
     }
 
     @Override
-    public void logPopulation() {
-        System.out.println();
-        for (StringGuess sg : population) {
-            System.out.println(sg);
-        }
+    public void addAndRemoveLeast(StringGuess guess) {
+
+        population.add(guess);
+        if (population.size() > size)
+            population.poll(); // removes highest/worst score
+    }
+
+    @Override
+    public int getSize() {
+        return size;
     }
 }

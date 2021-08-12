@@ -1,5 +1,8 @@
 package com.davidhagar;
 
+import com.davidhagar.population.CompetitionPopulation;
+import com.davidhagar.population.ListPopulation;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
@@ -33,7 +36,7 @@ public class MutationRange {
             for (int i = 0; i < steps; i++) {
                 float x = start + i * step;
                 int characterAdjustMaxOffset = (int)x;
-                StringGoalGA ga = new StringGoalGA(new File(logDir, "test-" + characterAdjustMaxOffset + ".csv"));
+                StringGoalGA ga = new StringGoalGA(new File(logDir, "test-" + characterAdjustMaxOffset + ".csv"), new CompetitionPopulation(3));
 //                ga.setMutationRate(mutationsRate);
                 ga.setCharacterAdjustMaxOffset(characterAdjustMaxOffset);
                 ga.run();

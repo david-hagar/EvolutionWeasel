@@ -5,9 +5,9 @@ import com.davidhagar.StringGuess;
 public interface Population {
     StringGuess getNextMutationParent();
 
-    StringGuess[] getNextCrossoverParents();
+    void intializePopulation(StringGuess[] population);
 
-    void add(StringGuess guess);
+    int getSize();
 
-    void logPopulation();
+    void addAndRemoveLeast(StringGuess guess);
 }

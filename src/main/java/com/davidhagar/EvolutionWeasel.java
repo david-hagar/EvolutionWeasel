@@ -1,5 +1,6 @@
 package com.davidhagar;
 
+import com.davidhagar.population.CompetitionPopulation;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -15,8 +16,8 @@ public class EvolutionWeasel {
             if(! logDir.mkdirs() )
                 throw new Exception("Can't make log directory:" + logDir);
 
-//            new StringGoalGA("test").run();
-            new MutationRange(1, 25, 300, new File("./out.csv"), logDir).run();
+//            new StringGoalGA(new File("./out/out1.csv"), new CompetitionPopulation(10)).run();
+            new MutationRange(1, 25, 300, new File("./out/out.csv"), logDir).run();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
