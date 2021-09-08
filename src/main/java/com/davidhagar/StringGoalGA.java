@@ -4,12 +4,13 @@ import com.davidhagar.population.Population;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class StringGoalGA {
 
     public static final int LOG_RATE_MS = 5;
     private float lengthMutationRate = 0.05f;
-    private int characterAdjustMaxOffset = 10;
+    //private int characterAdjustMaxOffset = 10;
     private String goal = "Me thinks it looks like a weasel!";
     private String initialGuess = "Something to start";
     private int maxGenerations = 5000000;
@@ -117,27 +118,28 @@ public class StringGoalGA {
         StringGuess[] g = new StringGuess[population.getSize()];
 
         for (int i = 0; i < population.getSize(); i++) {
-            g[i] = new StringGuess(initialGuess, initialScore);
+            g[i] = new StringGuess(initialGuess, initialScore, 10);
         }
         population.intializePopulation(g);
 
-        StringGuess best = new StringGuess("", Float.MAX_VALUE);
+        StringGuess best = new StringGuess("", Float.MAX_VALUE, 10);
 
         long lastLog = System.currentTimeMillis();
 
         try (FileOutputStream fos = new FileOutputStream(logFile);
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-             BufferedWriter writer = new BufferedWriter(osw)
+             BufferedWriter iterationWriter = new BufferedWriter(osw)
         ) {
-            writer.write("Iteration, Best Score");
-            writer.newLine();
+            iterationWriter.write("Iteration, Best Score, CAMO, Guess");
+            iterationWriter.newLine();
 
             for (int i = 0; i < maxGenerations; i++) {
                 StringGuess p = population.getNextMutationParent();
                 String childStr = p.mutate(this);
                 float score = score(childStr);
+                int cAMO = Math.max(1, p.characterAdjustMaxOffset + (ThreadLocalRandom.current().nextBoolean() ? +1:-1));
 
-                StringGuess guess = new StringGuess(childStr, score(childStr));
+                StringGuess guess = new StringGuess(childStr, score(childStr), cAMO);
                 population.addAndRemoveLeast(guess);
 
                 if (best.compareTo(guess) > 0)
@@ -154,8 +156,8 @@ public class StringGoalGA {
                     lastLog = System.currentTimeMillis();
                     //population.logPopulation();
                 }
-                writer.write(i + ", " + best.score);
-                writer.newLine();
+                iterationWriter.write(i + ", " + best.score + ", " + best.characterAdjustMaxOffset + ", " + best.guess);
+                iterationWriter.newLine();
             }
         }
         if(best.score == 0)
@@ -171,12 +173,12 @@ public class StringGoalGA {
         return endIteration;
     }
 
-    public int getCharacterAdjustMaxOffset() {
-        return characterAdjustMaxOffset;
-    }
-
-    public void setCharacterAdjustMaxOffset(int characterAdjustMaxOffset) {
-        this.characterAdjustMaxOffset = characterAdjustMaxOffset;
-    }
+//    public int getCharacterAdjustMaxOffset() {
+//        return characterAdjustMaxOffset;
+//    }
+//
+//    public void setCharacterAdjustMaxOffset(int characterAdjustMaxOffset) {
+//        this.characterAdjustMaxOffset = characterAdjustMaxOffset;
+//    }
 
 }

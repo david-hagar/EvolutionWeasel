@@ -10,7 +10,7 @@ class StringGuessTest {
     public void test(){
         StringGoalGA stringGoalGA = new StringGoalGA(new File("test"), new ListPopulation(5));
         for (int i = 0; i < 30; i++) {
-            StringGuess sg = new StringGuess("Me thinks it looks like a weasel!", 123.0f);
+            StringGuess sg = new StringGuess("Me thinks it looks like a weasel!", 123.0f, 10);
             String child = sg.mutate(stringGoalGA);
             System.out.println(child);
             System.out.println("firstDecreasingIndex = " + stringGoalGA.firstDecreasingIndex(child));

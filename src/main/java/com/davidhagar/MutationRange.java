@@ -38,7 +38,7 @@ public class MutationRange {
                 int characterAdjustMaxOffset = (int)x;
                 StringGoalGA ga = new StringGoalGA(new File(logDir, "test-" + characterAdjustMaxOffset + ".csv"), new CompetitionPopulation(3));
 //                ga.setMutationRate(mutationsRate);
-                ga.setCharacterAdjustMaxOffset(characterAdjustMaxOffset);
+                //ga.setCharacterAdjustMaxOffset(characterAdjustMaxOffset);
                 ga.run();
                 writer.write(characterAdjustMaxOffset + ", " + ga.getEndIteration());
                 writer.newLine();
